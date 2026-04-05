@@ -273,16 +273,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSupabase();
   await getSession();
 
-  // Admin guard - in real app check Supabase role
-  // For demo, show panel to any logged in user; in production use: if (!await isAdmin()) ...
+  // Admin guard - enforce admin role check
   const adminName = document.getElementById('adminUserName');
   if (currentUser) {
     const profile = await getUserProfile();
     if (adminName) adminName.textContent = profile?.full_name || currentUser.email || 'Admin';
-    // Uncomment below to enforce admin-only access:
-    // if (profile?.role !== 'admin') { showAccessDenied(); return; }
+    // Enforce admin-only access in production
+    if (profile?.role !== 'admin') {
+      showAccessDenied();
+      return;
+    }
   } else {
-    if (adminName) adminName.textContent = 'Demo Mode';
+    // Allow demo mode if no auth configured
+    if (adminName) adminName.textContent = 'Demo Mode (No Auth)';
   }
 
   loadDashboardStats();

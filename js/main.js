@@ -1,5 +1,13 @@
 // ── CART ──
-let cart = JSON.parse(localStorage.getItem('zuri_cart') || '[]');
+let cart = [];
+try {
+  cart = JSON.parse(localStorage.getItem('zuri_cart') || '[]');
+  if (!Array.isArray(cart)) cart = [];
+} catch (e) {
+  console.warn('Cart data corrupted, resetting:', e);
+  cart = [];
+  localStorage.removeItem('zuri_cart');
+}
 
 function updateCartCount() {
   const total = cart.reduce((s, i) => s + i.qty, 0);
@@ -184,11 +192,19 @@ function initNavSearch() {
 // Navigate to product detail page
 function goToProduct(id) {
   const root = window.location.pathname.includes('/pages/') ? '' : 'pages/';
-  window.location.href = root + 'pages/product.html?id=' + id;
+  window.location.href = root + 'product.html?id=' + id;
 }
 
 // ── WISHLIST ──
-let wishlist = JSON.parse(localStorage.getItem('zuri_wish') || '[]');
+let wishlist = [];
+try {
+  wishlist = JSON.parse(localStorage.getItem('zuri_wish') || '[]');
+  if (!Array.isArray(wishlist)) wishlist = [];
+} catch (e) {
+  console.warn('Wishlist data corrupted, resetting:', e);
+  wishlist = [];
+  localStorage.removeItem('zuri_wish');
+}
 function toggleWishlist(id, btn) {
   if (wishlist.includes(id)) {
     wishlist = wishlist.filter(i => i !== id);

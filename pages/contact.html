@@ -147,15 +147,35 @@ document.addEventListener('DOMContentLoaded', () => injectAuthModal());
 function handleContact(e) {
   e.preventDefault();
   const first = document.getElementById('cFirst').value.trim();
+  const last = document.getElementById('cLast').value.trim();
   const email = document.getElementById('cEmail').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  const subject = document.getElementById('cSubject').value;
   const msg = document.getElementById('cMessage').value.trim();
-  showToast('Message sent! We\'ll get back to you shortly ✅', 'success');
+
+  if (!first || !email || !msg) {
+    showToast('Please fill in all required fields', 'error');
+    return;
+  }
+
+  if (!email.includes('@') || !email.includes('.')) {
+    showToast('Please enter a valid email address', 'error');
+    return;
+  }
+
+  showToast('Message sent! We\'ll get back to you shortly', 'success');
   e.target.reset();
 }
 function toggleFaq(el) {
-  const isOpen = el.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach(i => { i.classList.remove('open'); i.querySelector('.faq-icon').textContent = '+'; });
-  if (!isOpen) { el.classList.add('open'); el.querySelector('.faq-icon').textContent = '−'; }
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => {
+    i.classList.remove('open');
+    i.querySelector('.faq-icon').textContent = '+';
+  });
+  if (!wasOpen) {
+    el.classList.add('open');
+    el.querySelector('.faq-icon').textContent = '−';
+  }
 }
 </script>
 </body></html>

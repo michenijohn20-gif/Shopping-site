@@ -35,9 +35,9 @@
 
     <div class="nav-actions">
       <!-- Cart -->
-      <a href="pages/shop.html" class="btn-icon" title="Cart">
+      <button class="btn-icon" id="cartBtn" title="Cart" onclick="window.location.href='pages/shop.html'">
         🛒<span class="badge-dot cart-count">0</span>
-      </a>
+      </button>
 
       <!-- Auth buttons (shown when logged out) -->
       <div id="authBtns" style="display:flex;gap:0.5rem;align-items:center;">
@@ -356,13 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function productCardHTML(p) {
   return `
-  <div class="product-card">
+  <div class="product-card" style="position:relative;cursor:pointer;">
+    <a href="pages/product.html?id=${p.id}" style="position:absolute;inset:0;z-index:1;border-radius:var(--radius-lg);" title="${p.name}"></a>
     <div class="product-img">
       <div class="product-img-inner">${p.emoji}</div>
       <div class="product-badges">
         ${p.badge ? `<span class="badge badge-${getBadgeType(p.badge)}">${p.badge}</span>` : ''}
       </div>
-      <button class="product-wishlist ${wishlist.includes(p.id)?'active':''}" onclick="toggleWishlist(${p.id},this)">♥</button>
+      <button class="product-wishlist ${wishlist.includes(p.id)?'active':''}" onclick="event.stopPropagation();toggleWishlist(${p.id},this)" style="position:relative;z-index:2;">♥</button>
     </div>
     <div class="product-body">
       <div class="product-brand">${p.brand}</div>
@@ -375,7 +376,7 @@ function productCardHTML(p) {
     </div>
     <div class="product-footer">
       <div class="product-price">${formatKES(p.price)}</div>
-      <button class="add-cart-btn" onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.brand}','${p.emoji}')">+ Cart</button>
+      <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.brand}','${p.emoji}')" style="position:relative;z-index:2;">+ Cart</button>
     </div>
   </div>`;
 }
