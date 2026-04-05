@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product — Zuricart Kenya</title>
+  <link rel="stylesheet" href="../css/theme.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/auth.css"/>
+  <link rel="stylesheet" href="../css/pages.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ── PRODUCT DETAIL STYLES ── */
+    .pd-page { padding-top: calc(var(--nav-h) + 1.5rem); min-height: 80vh; }
+
+    .breadcrumb {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.8rem; font-weight: 600; color: var(--text-3);
+      margin-bottom: 1.75rem; flex-wrap: wrap;
+    }
+    .breadcrumb a { color: var(--text-3); transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--primary); }
+    .breadcrumb span { color: var(--text-3); }
+    .breadcrumb .current { color: var(--text); }
+
+    /* MAIN GRID */
+    .product-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* IMAGE PANEL */
+    .pd-image-panel { }
+
+    .pd-main-image {
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      height: 400px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9rem;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .pd-main-image:hover { border-color: var(--primary); }
+    .pd-main-image .pd-badge-wrap {
+      position: absolute; top: 1.25rem; left: 1.25rem;
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .pd-main-image .pd-wish-btn {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      background: white; border: 1.5px solid var(--border);
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; transition: all 0.2s; color: var(--text-3);
+    }
+    .pd-main-image .pd-wish-btn:hover,
+    .pd-main-image .pd-wish-btn.active { border-color: var(--danger); color: var(--danger); background: #fff5f5; }
+
+    /* INFO PANEL */
+    .pd-info-panel { }
+
+    .pd-brand-row {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem;
+    }
+    .pd-brand {
+      font-size: 0.72rem; font-weight: 800; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .pd-cat-chip {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-full); padding: 0.2rem 0.65rem;
+      font-size: 0.7rem; font-weight: 700; color: var(--text-3);
+      text-transform: capitalize;
+    }
+
+    .pd-name {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 900; color: var(--text); line-height: 1.15;
+      margin-bottom: 0.75rem; letter-spacing: -0.5px;
+    }
+
+    .pd-rating-row {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+    }
+    .pd-stars { color: #f59e0b; font-size: 1.1rem; letter-spacing: -1px; }
+    .pd-rating-num { font-size: 0.9rem; font-weight: 800; color: var(--text); }
+    .pd-reviews { font-size: 0.82rem; color: var(--text-3); font-weight: 600; }
+    .pd-verified {
+      display: flex; align-items: center; gap: 0.3rem;
+      font-size: 0.75rem; font-weight: 700; color: var(--success);
+    }
+
+    .pd-price-block {
+      background: var(--surface-2); border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .pd-price { font-size: 2rem; font-weight: 900; color: var(--text); }
+    .pd-price-note {
+      font-size: 0.75rem; font-weight: 600; color: var(--text-3); margin-top: 0.2rem;
+    }
+    .pd-instock {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.82rem; font-weight: 700; color: var(--success);
+    }
+
+    /* ACTIONS */
+    .pd-actions {
+      display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .pd-add-btn {
+      flex: 1; background: var(--primary); color: white;
+      border: none; padding: 0.9rem 1.5rem;
+      border-radius: var(--radius-full); font-size: 1rem; font-weight: 800;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+      min-width: 160px;
+    }
+    .pd-add-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: var(--shadow-orange); }
+
+    .pd-buy-btn {
+      flex: 1; background: var(--text); color: white;
+      border: none; padding: 0.9rem 1.5rem;
+      border-radius: var(--radius-full); font-size: 1rem; font-weight: 800;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+      min-width: 160px;
+    }
+    .pd-buy-btn:hover { background: #1e293b; transform: translateY(-2px); }
+
+    /* PERKS */
+    .pd-perks {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.5rem;
+    }
+    .pd-perk {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: white; border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 0.65rem 0.85rem;
+      font-size: 0.8rem; font-weight: 700; color: var(--text-2);
+      transition: border-color 0.2s;
+    }
+    .pd-perk:hover { border-color: var(--primary); }
+    .pd-perk span { font-size: 1.1rem; }
+
+    /* DESCRIPTION */
+    .pd-desc-block { margin-bottom: 1.5rem; }
+    .pd-desc-block h4 {
+      font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--text-3); margin-bottom: 0.65rem;
+    }
+    .pd-desc-block p {
+      font-size: 0.92rem; color: var(--text-2); line-height: 1.75;
+    }
+
+    /* SPECS */
+    .pd-specs-table { width: 100%; border-collapse: collapse; }
+    .pd-specs-table tr { border-bottom: 1px solid var(--border); }
+    .pd-specs-table tr:last-child { border-bottom: none; }
+    .pd-specs-table td {
+      padding: 0.65rem 0.5rem; font-size: 0.85rem; vertical-align: top;
+    }
+    .pd-specs-table td:first-child {
+      font-weight: 700; color: var(--text-3); width: 38%; padding-right: 1rem;
+      white-space: nowrap;
+    }
+    .pd-specs-table td:last-child { color: var(--text); }
+
+    /* TABS */
+    .pd-tabs {
+      display: flex; gap: 0; border-bottom: 2px solid var(--border);
+      margin-bottom: 1.75rem;
+    }
+    .pd-tab {
+      padding: 0.7rem 1.25rem; font-size: 0.88rem; font-weight: 700;
+      color: var(--text-3); cursor: pointer; border: none; background: none;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .pd-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .pd-tab-panel { display: none; }
+    .pd-tab-panel.active { display: block; }
+
+    /* RELATED */
+    .related-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .product-detail-grid { grid-template-columns: 1fr; gap: 1.75rem; }
+      .pd-main-image { height: 300px; }
+      .related-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .pd-price { font-size: 1.5rem; }
+      .pd-actions { flex-direction: column; }
+      .pd-perks { grid-template-columns: 1fr; }
+      .related-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar"><div class="nav-inner">
+  <a href="../index.html" class="nav-logo"><div class="nav-logo-z">Z</div>Zuri<span>cart</span></a>
+  <div class="nav-search">
+    <input type="text" id="navSearchInput" placeholder="Search products…"/>
+    <button class="nav-search-btn" id="navSearchBtn">🔍</button>
+  </div>
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="admin.html" id="adminLink" style="display:none;color:var(--secondary);">⚙ Admin</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-icon" id="cartBtn" title="Cart">🛒<span class="badge-dot cart-count">0</span></button>
+    <div id="authBtns" style="display:flex;gap:0.5rem;">
+      <button class="btn-outline" onclick="openAuthModal('login')">Sign In</button>
+      <button class="btn-primary" onclick="openAuthModal('signup')">Sign Up</button>
+    </div>
+    <div class="user-menu" id="userMenu">
+      <div class="user-avatar-btn" id="userMenuTrigger">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span class="user-chevron">▼</span>
+      </div>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="dropdown-item">👤 My Profile</div>
+        <div class="dropdown-item">📦 My Orders</div>
+        <div class="dropdown-item" id="adminDropLink" onclick="window.location.href='admin.html'" style="display:none">⚙ Admin Panel</div>
+        <div class="dropdown-sep"></div>
+        <button class="dropdown-item danger" onclick="signOut()">🚪 Sign Out</button>
+      </div>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</div></nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="../index.html">Home</a>
+  <a href="shop.html">Shop</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<div class="pd-page">
+  <div class="section-inner">
+
+    <!-- BREADCRUMB -->
+    <nav class="breadcrumb" id="breadcrumb">
+      <a href="../index.html">Home</a>
+      <span>›</span>
+      <a href="shop.html">Shop</a>
+      <span>›</span>
+      <span class="current" id="breadcrumbName">Loading…</span>
+    </nav>
+
+    <!-- PRODUCT DETAIL GRID -->
+    <div class="product-detail-grid" id="productDetail">
+      <!-- JS renders this -->
+      <div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--text-3);">
+        <div style="font-size:3rem;margin-bottom:1rem;">⏳</div>
+        <p style="font-size:1rem;font-weight:700;">Loading product…</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABS SECTION -->
+  <div class="section" style="border-top:1.5px solid var(--border);margin-top:3rem;">
+    <div class="section-inner" id="tabsSection" style="display:none;">
+      <div class="pd-tabs">
+        <button class="pd-tab active" onclick="switchTab('overview',this)">Overview</button>
+        <button class="pd-tab" onclick="switchTab('specs',this)">Specifications</button>
+        <button class="pd-tab" onclick="switchTab('shipping',this)">Shipping & Returns</button>
+      </div>
+
+      <div class="pd-tab-panel active" id="tab-overview">
+        <p id="tabOverviewText" style="font-size:0.95rem;color:var(--text-2);line-height:1.8;max-width:720px;"></p>
+      </div>
+
+      <div class="pd-tab-panel" id="tab-specs">
+        <div style="background:white;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;max-width:600px;">
+          <table class="pd-specs-table" id="specsTable"></table>
+        </div>
+      </div>
+
+      <div class="pd-tab-panel" id="tab-shipping">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:720px;">
+          <div style="background:white;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;">
+            <h4 style="font-size:0.88rem;font-weight:800;color:var(--text);margin-bottom:1rem;">🚀 Delivery</h4>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
+              <li style="font-size:0.85rem;color:var(--text-2);">✅ Next-day delivery in Nairobi</li>
+              <li style="font-size:0.85rem;color:var(--text-2);">📦 1–3 days upcountry</li>
+              <li style="font-size:0.85rem;color:var(--text-2);">🏪 In-store pickup available</li>
+              <li style="font-size:0.85rem;color:var(--text-2);">🛵 Free delivery on orders over KES 5,000</li>
+            </ul>
+          </div>
+          <div style="background:white;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;">
+            <h4 style="font-size:0.88rem;font-weight:800;color:var(--text);margin-bottom:1rem;">↩️ Returns</h4>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
+              <li style="font-size:0.85rem;color:var(--text-2);">✅ 7-day hassle-free returns</li>
+              <li style="font-size:0.85rem;color:var(--text-2);">✅ Original packaging required</li>
+              <li style="font-size:0.85rem;color:var(--text-2);">✅ Full refund or exchange</li>
+              <li style="font-size:0.85rem;color:var(--text-2);">📞 Call us to initiate a return</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED PRODUCTS -->
+  <div class="section" style="background:var(--surface-2);border-top:1.5px solid var(--border);">
+    <div class="section-inner">
+      <div class="section-top">
+        <h2>You May Also Like</h2>
+        <a href="shop.html">View all →</a>
+      </div>
+      <div class="related-grid" id="relatedGrid"></div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="footer-inner">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">Zuri<span>cart</span></div>
+      <p>Kenya's #1 online electronics store.</p>
+    </div>
+    <div class="footer-col"><h5>Shop</h5>
+      <a href="shop.html?cat=phones">Phones</a>
+      <a href="shop.html?cat=laptops">Laptops</a>
+      <a href="shop.html?cat=tvs">TVs</a>
+    </div>
+    <div class="footer-col"><h5>Company</h5>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col"><h5>Contact</h5>
+      <a href="tel:+254700000000">+254 700 000 000</a>
+      <a href="mailto:info@zuricart.co.ke">info@zuricart.co.ke</a>
+    </div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Zuricart Kenya. All rights reserved.</p></div>
+</div></footer>
+
+<script src="../js/theme.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/auth-modal.js"></script>
+<script>
+// ── PRODUCT SPECS MAP ──
+// Extended descriptions & specs per category for the detail page
+const SPECS_MAP = {
+  phones: (p) => ({
+    desc: `${p.name} by ${p.brand} is a premium smartphone featuring ${p.desc}. Whether you're a content creator, a productivity-focused professional, or simply love having the latest tech, this phone delivers an outstanding experience right here in Kenya.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Smartphone'],
+      ['Processor', p.desc.match(/Snapdragon|A\d+|Helio|Dimensity|Exynos/i)?.[0] || 'Flagship chip'],
+      ['Camera', p.desc.match(/\d+MP/)?.[0] || 'Multi-lens system'],
+      ['Battery', p.desc.match(/\d+mAh/)?.[0] || 'Large capacity'],
+      ['Connectivity', '5G / 4G LTE, WiFi 6, Bluetooth 5.x'],
+      ['Operating System', p.brand === 'Apple' ? 'iOS 18' : 'Android 14'],
+      ['Warranty', '1 year manufacturer warranty'],
+      ['In Box', 'Phone, charger, cable, documentation'],
+    ]
+  }),
+  tablets: (p) => ({
+    desc: `The ${p.name} redefines what a tablet can do. With ${p.desc}, it's perfect for professionals, students, and creatives who need performance and portability in equal measure.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Tablet'],
+      ['Chip', p.desc.match(/M\d|Snapdragon|Helio/i)?.[0] || 'Powerful chip'],
+      ['Display', p.desc.match(/\d+\.?\d*"/)?.[0] || 'Large display'],
+      ['Storage', '128GB / 256GB options'],
+      ['Connectivity', 'WiFi 6, Bluetooth 5.x, optional 5G'],
+      ['Operating System', p.brand === 'Apple' ? 'iPadOS 18' : 'Android 14'],
+      ['Warranty', '1 year manufacturer warranty'],
+    ]
+  }),
+  laptops: (p) => ({
+    desc: `The ${p.name} is built for the demands of modern work. Featuring ${p.desc}, it handles everything from everyday tasks to creative workloads with ease — backed by full warranty in Kenya.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Laptop'],
+      ['Processor', p.desc.match(/M\d|Core i\d|Core Ultra|Ryzen \d|RTX/i)?.[0] || 'Powerful CPU'],
+      ['RAM', p.desc.match(/\d+GB RAM/i)?.[0] || '8GB+'],
+      ['Storage', p.desc.match(/\d+GB SSD/i)?.[0] || 'SSD'],
+      ['Operating System', p.brand === 'Apple' ? 'macOS Sequoia' : 'Windows 11 Pro'],
+      ['Battery', p.desc.match(/\d+h battery/i)?.[0] || 'All-day battery'],
+      ['Ports', 'USB-A, USB-C, HDMI, SD card (varies by model)'],
+      ['Warranty', '1 year manufacturer warranty'],
+    ]
+  }),
+  tvs: (p) => ({
+    desc: `Experience stunning visuals with the ${p.name}. With ${p.desc}, every movie, match, and show comes to life — perfect for Kenyan homes of all sizes.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Television'],
+      ['Screen Size', p.desc.match(/\d+"/)?.[0] || 'Large screen'],
+      ['Resolution', p.desc.match(/4K|FHD|OLED|QLED/i)?.[0] || '4K'],
+      ['Smart TV', 'Yes — built-in streaming apps'],
+      ['HDMI Ports', '3x HDMI'],
+      ['USB Ports', '2x USB'],
+      ['WiFi', 'Built-in WiFi'],
+      ['Warranty', '1 year manufacturer warranty'],
+    ]
+  }),
+  audio: (p) => ({
+    desc: `The ${p.name} delivers audio the way artists intended. With ${p.desc}, you'll hear every detail clearly — from your morning podcast to late-night music sessions.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Audio'],
+      ['Type', p.desc.toLowerCase().includes('speaker') ? 'Speaker' : 'Headphones / Earbuds'],
+      ['Battery', p.desc.match(/\d+h/i)?.[0] || 'Long battery life'],
+      ['Connectivity', 'Bluetooth 5.x, optional wired'],
+      ['Water Resistance', p.desc.match(/IP\d+/i)?.[0] || 'Check model specs'],
+      ['Warranty', '1 year manufacturer warranty'],
+    ]
+  }),
+  gaming: (p) => ({
+    desc: `Level up with the ${p.name}. Featuring ${p.desc}, this is the ultimate gaming companion for Kenyan gamers — whether you play solo, online, or with friends.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Gaming'],
+      ['Resolution', p.desc.match(/4K|1080p|1440p/i)?.[0] || '4K capable'],
+      ['Storage', p.desc.match(/\d+TB SSD|\d+GB/i)?.[0] || 'SSD storage'],
+      ['Online', 'Online multiplayer ready'],
+      ['Controllers', 'Controller included or sold separately'],
+      ['Warranty', '1 year manufacturer warranty'],
+    ]
+  }),
+  cameras: (p) => ({
+    desc: `Capture life in stunning detail with the ${p.name}. With ${p.desc}, every photo and video tells a richer story — ideal for professional photographers and enthusiasts alike.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Camera'],
+      ['Sensor', p.desc.match(/\d+MP/)?.[0] || 'High-res sensor'],
+      ['Video', p.desc.match(/4K \d+fps|\d+K/i)?.[0] || '4K video'],
+      ['Stabilisation', p.desc.match(/IBIS|OIS|stabiliz/i)?.[0] || 'Built-in stabilisation'],
+      ['Connectivity', 'WiFi, Bluetooth, USB-C'],
+      ['Warranty', '1 year manufacturer warranty'],
+    ]
+  }),
+  wearables: (p) => ({
+    desc: `Stay connected and healthy with the ${p.name}. Featuring ${p.desc}, it's your everyday companion for fitness tracking, notifications, and style.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Wearable'],
+      ['Battery Life', p.desc.match(/\d+-day|\d+h/i)?.[0] || 'Multi-day battery'],
+      ['Water Resistance', p.desc.match(/ATM|IP\d+/i)?.[0] || 'Water resistant'],
+      ['Display', 'AMOLED / Retina display'],
+      ['Sensors', 'Heart rate, SpO2, accelerometer'],
+      ['Warranty', '1 year manufacturer warranty'],
+    ]
+  }),
+  home: (p) => ({
+    desc: `The ${p.name} brings modern efficiency to your home. Featuring ${p.desc}, it's designed to make daily life easier and more comfortable for Kenyan families.`,
+    specs: [
+      ['Brand', p.brand],
+      ['Model', p.name],
+      ['Category', 'Home Appliance'],
+      ['Capacity/Power', p.desc.match(/\d+L|\d+kg|\d+\.?\d*HP/i)?.[0] || 'Check model specs'],
+      ['Energy Rating', 'A+ / Inverter technology'],
+      ['Connectivity', p.desc.match(/WiFi/i)?.[0] ? 'WiFi enabled' : 'Standard'],
+      ['Colour', 'Silver / White (model dependent)'],
+      ['Warranty', '2 years manufacturer warranty'],
+    ]
+  }),
+};
+
+function getProductSpecs(p) {
+  const fn = SPECS_MAP[p.cat] || SPECS_MAP['phones'];
+  return fn(p);
+}
+
+// ── RENDER PRODUCT DETAIL ──
+function renderProductDetail(p) {
+  const { desc, specs } = getProductSpecs(p);
+  const isWishlisted = wishlist.includes(p.id);
+
+  // Update page title & breadcrumb
+  document.title = p.name + ' — Zuricart Kenya';
+  document.getElementById('breadcrumbName').textContent = p.name;
+  const catLink = document.createElement('a');
+
+  document.getElementById('productDetail').innerHTML = `
+    <!-- IMAGE PANEL -->
+    <div class="pd-image-panel">
+      <div class="pd-main-image">
+        <div class="pd-badge-wrap">
+          ${p.badge ? `<span class="badge badge-${getBadgeType(p.badge)}" style="font-size:0.75rem;padding:0.3rem 0.7rem;">${p.badge}</span>` : ''}
+          <span class="badge" style="background:#e0f2fe;color:#0ea5e9;font-size:0.65rem;">✅ Genuine</span>
+        </div>
+        <button class="pd-wish-btn ${isWishlisted ? 'active' : ''}" id="pdWishBtn" onclick="toggleWishlistDetail(${p.id})">♥</button>
+        <div style="font-size:9rem;line-height:1;transition:transform 0.3s;" id="pdEmoji">${p.emoji}</div>
+      </div>
+
+      <!-- PAYMENT METHODS -->
+      <div style="background:white;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-top:0;">
+        <p style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:0.85rem;">Accepted Payments</p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <span style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.7rem;font-size:0.78rem;font-weight:700;color:var(--text-2);">📱 M-Pesa</span>
+          <span style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.7rem;font-size:0.78rem;font-weight:700;color:var(--text-2);">💳 Visa</span>
+          <span style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.7rem;font-size:0.78rem;font-weight:700;color:var(--text-2);">💳 Mastercard</span>
+          <span style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.7rem;font-size:0.78rem;font-weight:700;color:var(--text-2);">🏦 Bank Transfer</span>
+          <span style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.7rem;font-size:0.78rem;font-weight:700;color:var(--text-2);">🚚 Pay on Delivery</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO PANEL -->
+    <div class="pd-info-panel">
+      <div class="pd-brand-row">
+        <span class="pd-brand">${p.brand}</span>
+        <span class="pd-cat-chip">${p.cat}</span>
+      </div>
+      <h1 class="pd-name">${p.name}</h1>
+      <div class="pd-rating-row">
+        <span class="pd-stars">${renderStars(p.rating)}</span>
+        <span class="pd-rating-num">${p.rating}</span>
+        <span class="pd-reviews">(${p.reviews} reviews)</span>
+        <span class="pd-verified">✅ Verified seller</span>
+      </div>
+
+      <!-- PRICE -->
+      <div class="pd-price-block">
+        <div>
+          <div class="pd-price">${formatKES(p.price)}</div>
+          <div class="pd-price-note">All prices inclusive of applicable taxes</div>
+        </div>
+        <div class="pd-instock">
+          <span style="width:8px;height:8px;background:var(--success);border-radius:50%;display:inline-block;"></span>
+          In Stock
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="pd-actions">
+        <button class="pd-add-btn" onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.brand}','${p.emoji}')">
+          🛒 Add to Cart
+        </button>
+        <button class="pd-buy-btn" onclick="showToast('Checkout coming soon!','success')">
+          ⚡ Buy Now
+        </button>
+      </div>
+
+      <!-- PERKS -->
+      <div class="pd-perks">
+        <div class="pd-perk"><span>🚀</span> Next-day Nairobi</div>
+        <div class="pd-perk"><span>↩️</span> 7-day returns</div>
+        <div class="pd-perk"><span>✅</span> 100% genuine</div>
+        <div class="pd-perk"><span>🛡️</span> Warranty included</div>
+      </div>
+
+      <!-- SHORT DESC -->
+      <div class="pd-desc-block">
+        <h4>About this product</h4>
+        <p>${p.desc}.</p>
+      </div>
+
+      <!-- QUICK SPECS PREVIEW -->
+      <div style="background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;">
+        <p style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:0.85rem;">Quick Specs</p>
+        <table class="pd-specs-table" style="background:transparent;">
+          ${specs.slice(0,5).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
+        </table>
+        <button onclick="switchTabByName('specs')" style="margin-top:0.85rem;font-size:0.8rem;font-weight:700;color:var(--primary);background:none;border:none;cursor:pointer;padding:0;">View all specs ↓</button>
+      </div>
+    </div>
+  `;
+
+  // Populate tabs
+  document.getElementById('tabOverviewText').textContent = desc;
+  document.getElementById('specsTable').innerHTML = specs.map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  document.getElementById('tabsSection').style.display = 'block';
+
+  // Emoji hover effect
+  const emojiEl = document.getElementById('pdEmoji');
+  const mainImg = document.querySelector('.pd-main-image');
+  mainImg?.addEventListener('mouseenter', () => { if (emojiEl) emojiEl.style.transform = 'scale(1.1) translateY(-8px)'; });
+  mainImg?.addEventListener('mouseleave', () => { if (emojiEl) emojiEl.style.transform = ''; });
+}
+
+function toggleWishlistDetail(id) {
+  const btn = document.getElementById('pdWishBtn');
+  toggleWishlist(id, btn);
+}
+
+// ── RELATED PRODUCTS ──
+function renderRelated(p) {
+  const related = PRODUCTS
+    .filter(r => r.id !== p.id && r.cat === p.cat)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 4);
+
+  const grid = document.getElementById('relatedGrid');
+  if (!grid) return;
+
+  grid.innerHTML = related.map(r => `
+    <div class="product-card" onclick="goToProduct(${r.id})" style="cursor:pointer;">
+      <div class="product-img">
+        <div class="product-img-inner">${r.emoji}</div>
+        <div class="product-badges">${r.badge ? `<span class="badge badge-${getBadgeType(r.badge)}">${r.badge}</span>` : ''}</div>
+        <button class="product-wishlist ${wishlist.includes(r.id)?'active':''}" onclick="event.stopPropagation();toggleWishlist(${r.id},this)">♥</button>
+      </div>
+      <div class="product-body">
+        <div class="product-brand">${r.brand}</div>
+        <div class="product-name">${r.name}</div>
+        <div class="product-desc">${r.desc}</div>
+        <div class="product-rating"><span class="stars">${renderStars(r.rating)}</span><span class="rating-count">${r.rating} (${r.reviews})</span></div>
+      </div>
+      <div class="product-footer">
+        <div class="product-price">${formatKES(r.price)}</div>
+        <button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${r.id},'${r.name.replace(/'/g,"\\'")}',${r.price},'${r.brand}','${r.emoji}')">+ Cart</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── TABS ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.pd-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pd-tab-panel').forEach(p => p.classList.remove('active'));
+  btn?.classList.add('active');
+  document.getElementById('tab-' + id)?.classList.add('active');
+}
+
+function switchTabByName(id) {
+  const tabsSection = document.getElementById('tabsSection');
+  tabsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => {
+    const btn = document.querySelector(`.pd-tab[onclick*="${id}"]`);
+    switchTab(id, btn);
+  }, 400);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  injectAuthModal();
+
+  const params = new URLSearchParams(location.search);
+  const id = parseInt(params.get('id'));
+  const product = PRODUCTS.find(p => p.id === id);
+
+  if (!product) {
+    document.getElementById('productDetail').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--text-3);">
+        <div style="font-size:3rem;margin-bottom:1rem;">😕</div>
+        <p style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:0.5rem;">Product not found</p>
+        <p style="margin-bottom:1.5rem;">This product may no longer be available.</p>
+        <a href="shop.html" class="btn-primary">Browse Shop →</a>
+      </div>`;
+    return;
+  }
+
+  renderProductDetail(product);
+  renderRelated(product);
+});
+</script>
+</body>
+</html>

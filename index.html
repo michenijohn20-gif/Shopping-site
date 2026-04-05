@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zuricart — Kenya's Best Electronics Store</title>
+  <link rel="stylesheet" href="css/theme.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+  <link rel="stylesheet" href="css/home.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-z">Z</div>
+      Zuri<span>cart</span>
+    </a>
+
+    <div class="nav-search">
+      <input type="text" id="navSearchInput" placeholder="Search phones, laptops, TVs…"/>
+      <button class="nav-search-btn" id="navSearchBtn">🔍</button>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="pages/shop.html">Shop</a></li>
+      <li><a href="pages/about.html">About</a></li>
+      <li><a href="pages/contact.html">Contact</a></li>
+      <li><a href="pages/admin.html" id="adminLink" style="display:none;color:var(--secondary);">⚙ Admin</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <!-- Cart -->
+      <a href="pages/shop.html" class="btn-icon" title="Cart">
+        🛒<span class="badge-dot cart-count">0</span>
+      </a>
+
+      <!-- Auth buttons (shown when logged out) -->
+      <div id="authBtns" style="display:flex;gap:0.5rem;align-items:center;">
+        <button class="btn-outline" onclick="openAuthModal('login')">Sign In</button>
+        <button class="btn-primary" onclick="openAuthModal('signup')">Sign Up</button>
+      </div>
+
+      <!-- User menu (shown when logged in) -->
+      <div class="user-menu" id="userMenu">
+        <div class="user-avatar-btn" id="userMenuTrigger">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span class="user-chevron">▼</span>
+        </div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-item">👤 My Profile</div>
+          <div class="dropdown-item">📦 My Orders</div>
+          <div class="dropdown-item dropdown-item-admin" id="adminDropLink" onclick="window.location.href='pages/admin.html'" style="display:none">⚙ Admin Panel</div>
+          <div class="dropdown-sep"></div>
+          <button class="dropdown-item danger" onclick="signOut()">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="pages/shop.html">Shop</a>
+  <a href="pages/about.html">About</a>
+  <a href="pages/contact.html">Contact</a>
+  <a href="#" onclick="openAuthModal('login');return false;" style="color:var(--primary);">Sign In / Sign Up</a>
+</div>
+
+<!-- ── CATEGORY BAR ── -->
+<div class="cat-bar">
+  <div class="cat-bar-inner">
+    <a href="pages/shop.html?cat=phones" class="cat-bar-link">📱 Phones</a>
+    <a href="pages/shop.html?cat=tablets" class="cat-bar-link">📲 Tablets</a>
+    <a href="pages/shop.html?cat=laptops" class="cat-bar-link">💻 Laptops</a>
+    <a href="pages/shop.html?cat=tvs" class="cat-bar-link">📺 TVs</a>
+    <a href="pages/shop.html?cat=audio" class="cat-bar-link">🎧 Audio</a>
+    <a href="pages/shop.html?cat=gaming" class="cat-bar-link">🎮 Gaming</a>
+    <a href="pages/shop.html?cat=cameras" class="cat-bar-link">📷 Cameras</a>
+    <a href="pages/shop.html?cat=wearables" class="cat-bar-link">⌚ Wearables</a>
+    <a href="pages/shop.html?cat=home" class="cat-bar-link">🏠 Home</a>
+  </div>
+</div>
+
+<div class="page" style="padding-top:calc(var(--nav-h) + 42px)">
+
+  <!-- ── HERO BANNER ── -->
+  <section class="hero-section">
+    <div class="hero-inner">
+      <div class="hero-content reveal">
+        <div class="hero-tag">🇰🇪 Kenya's #1 Electronics Store</div>
+        <h1 class="hero-title">
+          Shop the Latest<br/>
+          Tech at the<br/>
+          <em>Best Prices</em>
+        </h1>
+        <p class="hero-sub">Phones, laptops, TVs, audio, gaming & more — delivered to your door across Kenya. Next-day delivery in Nairobi.</p>
+        <div class="hero-btns">
+          <a href="pages/shop.html" class="btn-primary" style="font-size:1rem;padding:0.75rem 2rem;">Shop Now →</a>
+          <a href="pages/about.html" class="btn-outline" style="font-size:1rem;padding:0.75rem 2rem;">Learn More</a>
+        </div>
+        <div class="hero-perks">
+          <div class="hero-perk"><span>🚀</span> Next-day delivery</div>
+          <div class="hero-perk"><span>💳</span> M-Pesa accepted</div>
+          <div class="hero-perk"><span>✅</span> 100% genuine</div>
+        </div>
+      </div>
+      <div class="hero-cards reveal">
+        <div class="hero-float-card hfc-1">
+          <span class="hfc-emoji">📱</span>
+          <div>
+            <div class="hfc-name">iPhone 16 Pro</div>
+            <div class="hfc-price">KES 149,000</div>
+          </div>
+          <span class="badge badge-primary">New</span>
+        </div>
+        <div class="hero-float-card hfc-2">
+          <span class="hfc-emoji">🎮</span>
+          <div>
+            <div class="hfc-name">PlayStation 5</div>
+            <div class="hfc-price">KES 75,000</div>
+          </div>
+          <span class="badge badge-danger">Hot</span>
+        </div>
+        <div class="hero-float-card hfc-3">
+          <span class="hfc-emoji">💻</span>
+          <div>
+            <div class="hfc-name">MacBook Pro M4</div>
+            <div class="hfc-price">KES 295,000</div>
+          </div>
+          <span class="badge badge-secondary">Pro</span>
+        </div>
+        <div class="hero-float-card hfc-4">
+          <span class="hfc-emoji">🎧</span>
+          <div>
+            <div class="hfc-name">Sony XM5</div>
+            <div class="hfc-price">KES 42,000</div>
+          </div>
+          <span class="badge badge-success">Deal</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TRUST BAR ── -->
+  <div class="trust-bar">
+    <div class="trust-bar-inner">
+      <div class="trust-item"><span>🚀</span><div><strong>Next-Day Delivery</strong><p>Nairobi & major towns</p></div></div>
+      <div class="trust-item"><span>💳</span><div><strong>Pay on Delivery</strong><p>M-Pesa, card & cash</p></div></div>
+      <div class="trust-item"><span>↩️</span><div><strong>7-Day Returns</strong><p>Hassle-free policy</p></div></div>
+      <div class="trust-item"><span>✅</span><div><strong>100% Genuine</strong><p>Warranty & receipt</p></div></div>
+    </div>
+  </div>
+
+  <!-- ── SHOP BY CATEGORY ── -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-top reveal">
+        <h2>Shop by Category</h2>
+        <a href="pages/shop.html">View all →</a>
+      </div>
+      <div class="cat-grid reveal">
+        <a href="pages/shop.html?cat=phones" class="cat-tile">
+          <div class="cat-tile-emoji">📱</div>
+          <div class="cat-tile-name">Phones</div>
+          <div class="cat-tile-sub">iPhone, Samsung & more</div>
+        </a>
+        <a href="pages/shop.html?cat=laptops" class="cat-tile">
+          <div class="cat-tile-emoji">💻</div>
+          <div class="cat-tile-name">Laptops</div>
+          <div class="cat-tile-sub">MacBook, HP, Lenovo</div>
+        </a>
+        <a href="pages/shop.html?cat=tvs" class="cat-tile">
+          <div class="cat-tile-emoji">📺</div>
+          <div class="cat-tile-name">Televisions</div>
+          <div class="cat-tile-sub">4K, OLED, Smart TVs</div>
+        </a>
+        <a href="pages/shop.html?cat=audio" class="cat-tile">
+          <div class="cat-tile-emoji">🎧</div>
+          <div class="cat-tile-name">Audio</div>
+          <div class="cat-tile-sub">Speakers & headphones</div>
+        </a>
+        <a href="pages/shop.html?cat=gaming" class="cat-tile cat-tile-wide">
+          <div class="cat-tile-emoji">🎮</div>
+          <div class="cat-tile-name">Gaming</div>
+          <div class="cat-tile-sub">PS5, Xbox, Nintendo</div>
+        </a>
+        <a href="pages/shop.html?cat=cameras" class="cat-tile">
+          <div class="cat-tile-emoji">📷</div>
+          <div class="cat-tile-name">Cameras</div>
+          <div class="cat-tile-sub">Sony, Canon, DJI</div>
+        </a>
+        <a href="pages/shop.html?cat=wearables" class="cat-tile">
+          <div class="cat-tile-emoji">⌚</div>
+          <div class="cat-tile-name">Wearables</div>
+          <div class="cat-tile-sub">Apple Watch, Fitbit</div>
+        </a>
+        <a href="pages/shop.html?cat=home" class="cat-tile">
+          <div class="cat-tile-emoji">🏠</div>
+          <div class="cat-tile-name">Home</div>
+          <div class="cat-tile-sub">Appliances & more</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FLASH DEALS ── -->
+  <section class="section deals-section">
+    <div class="section-inner">
+      <div class="section-top reveal">
+        <h2>🔥 Flash Deals</h2>
+        <a href="pages/shop.html">See all deals →</a>
+      </div>
+      <div class="products-row" id="dealsRow"><!-- JS renders --></div>
+    </div>
+  </section>
+
+  <!-- ── FEATURED PRODUCTS ── -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-top reveal">
+        <h2>⭐ Top Picks</h2>
+        <a href="pages/shop.html">Browse all →</a>
+      </div>
+      <div class="products-row" id="topPicksRow"><!-- JS renders --></div>
+    </div>
+  </section>
+
+  <!-- ── BRANDS ── -->
+  <section class="section brands-section">
+    <div class="section-inner">
+      <div class="section-top reveal"><h2>Top Brands</h2></div>
+      <div class="brands-scroll reveal">
+        <div class="brands-track">
+          <div class="brand-chip">Apple</div>
+          <div class="brand-chip">Samsung</div>
+          <div class="brand-chip">Sony</div>
+          <div class="brand-chip">LG</div>
+          <div class="brand-chip">Hisense</div>
+          <div class="brand-chip">HP</div>
+          <div class="brand-chip">Lenovo</div>
+          <div class="brand-chip">Dell</div>
+          <div class="brand-chip">ASUS</div>
+          <div class="brand-chip">Tecno</div>
+          <div class="brand-chip">Infinix</div>
+          <div class="brand-chip">Xiaomi</div>
+          <div class="brand-chip">JBL</div>
+          <div class="brand-chip">DJI</div>
+          <div class="brand-chip">Apple</div>
+          <div class="brand-chip">Samsung</div>
+          <div class="brand-chip">Sony</div>
+          <div class="brand-chip">LG</div>
+          <div class="brand-chip">Hisense</div>
+          <div class="brand-chip">HP</div>
+          <div class="brand-chip">Lenovo</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY ZURICART ── -->
+  <section class="section why-section">
+    <div class="section-inner">
+      <div class="section-top reveal"><h2>Why Zuricart?</h2></div>
+      <div class="why-grid">
+        <div class="why-card reveal"><div class="why-icon">🏆</div><h3>Best Prices</h3><p>We match or beat any price in Kenya. Shop with confidence.</p></div>
+        <div class="why-card reveal"><div class="why-icon">🚀</div><h3>Fast Delivery</h3><p>Order by midnight, get it the next day — across Nairobi and major towns.</p></div>
+        <div class="why-card reveal"><div class="why-icon">💳</div><h3>Easy Payments</h3><p>M-Pesa, Visa, Mastercard, or pay on delivery. Whatever works for you.</p></div>
+        <div class="why-card reveal"><div class="why-icon">✅</div><h3>Genuine Products</h3><p>Every item comes with manufacturer warranty and official receipt.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NEWSLETTER ── -->
+  <section class="newsletter-section reveal">
+    <div class="newsletter-inner">
+      <div>
+        <h2>Get exclusive deals in your inbox</h2>
+        <p>Subscribe and be the first to know about offers, launches and flash sales.</p>
+      </div>
+      <div class="newsletter-form">
+        <input type="email" id="nlEmail" placeholder="your@email.com"/>
+        <button class="btn-primary" onclick="handleNewsletter()">Subscribe</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">Zuri<span>cart</span></div>
+        <p>Kenya's #1 online electronics store. Phones, laptops, TVs, audio, gaming & more — delivered fast.</p>
+        <div class="footer-socials">
+          <a href="https://web.facebook.com/Zuricart/" target="_blank" class="footer-social">f</a>
+          <a href="https://www.instagram.com/zuricart_ke/" target="_blank" class="footer-social">in</a>
+          <a href="https://x.com/zuricartke" target="_blank" class="footer-social">X</a>
+          <a href="https://www.youtube.com/channel/UCvewMvj63uzkEPBPTcg58dQ" target="_blank" class="footer-social">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <a href="pages/shop.html?cat=phones">Phones</a>
+        <a href="pages/shop.html?cat=laptops">Laptops</a>
+        <a href="pages/shop.html?cat=tvs">Televisions</a>
+        <a href="pages/shop.html?cat=audio">Audio</a>
+        <a href="pages/shop.html?cat=gaming">Gaming</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="pages/about.html">About Us</a>
+        <a href="pages/contact.html">Contact</a>
+        <a href="#">How to Buy</a>
+        <a href="#">Returns</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="tel:+254700000000">+254 700 000 000</a>
+        <a href="mailto:info@zuricart.co.ke">info@zuricart.co.ke</a>
+        <a href="#">Nairobi, Kenya</a>
+        <a href="#">Mon–Sat 8am–8pm</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Zuricart Kenya. All rights reserved.</p>
+      <p>Privacy Policy · Terms · Order Policies</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/theme.js"></script>
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/auth-modal.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  injectAuthModal();
+
+  // Deals row - products with badge Deal/Hot
+  const deals = PRODUCTS.filter(p => ['Deal','Hot'].includes(p.badge)).slice(0, 5);
+  document.getElementById('dealsRow').innerHTML = deals.map(p => productCardHTML(p)).join('');
+
+  // Top picks - highest rated
+  const top = [...PRODUCTS].sort((a,b) => b.rating - a.rating).slice(0, 5);
+  document.getElementById('topPicksRow').innerHTML = top.map(p => productCardHTML(p)).join('');
+});
+
+function productCardHTML(p) {
+  return `
+  <div class="product-card">
+    <div class="product-img">
+      <div class="product-img-inner">${p.emoji}</div>
+      <div class="product-badges">
+        ${p.badge ? `<span class="badge badge-${getBadgeType(p.badge)}">${p.badge}</span>` : ''}
+      </div>
+      <button class="product-wishlist ${wishlist.includes(p.id)?'active':''}" onclick="toggleWishlist(${p.id},this)">♥</button>
+    </div>
+    <div class="product-body">
+      <div class="product-brand">${p.brand}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-desc">${p.desc}</div>
+      <div class="product-rating">
+        <span class="stars">${renderStars(p.rating)}</span>
+        <span class="rating-count">${p.rating} (${p.reviews})</span>
+      </div>
+    </div>
+    <div class="product-footer">
+      <div class="product-price">${formatKES(p.price)}</div>
+      <button class="add-cart-btn" onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.brand}','${p.emoji}')">+ Cart</button>
+    </div>
+  </div>`;
+}
+
+function handleNewsletter() {
+  const v = document.getElementById('nlEmail').value.trim();
+  if (!v || !v.includes('@')) { showToast('Enter a valid email address', 'error'); return; }
+  showToast('You\'re subscribed! 🎉 Check your inbox.', 'success');
+  document.getElementById('nlEmail').value = '';
+}
+</script>
+</body></html>

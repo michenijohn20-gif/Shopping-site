@@ -1,0 +1,131 @@
+<!-- ABOUT PAGE -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us — Zuricart Kenya</title>
+  <link rel="stylesheet" href="../css/theme.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/auth.css"/>
+  <link rel="stylesheet" href="../css/pages.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav class="navbar"><div class="nav-inner">
+  <a href="../index.html" class="nav-logo"><div class="nav-logo-z">Z</div>Zuri<span>cart</span></a>
+  <div class="nav-search"><input type="text" id="navSearchInput" placeholder="Search…"/><button class="nav-search-btn" id="navSearchBtn">🔍</button></div>
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li><li><a href="shop.html">Shop</a></li>
+    <li><a href="about.html" class="active">About</a></li><li><a href="contact.html">Contact</a></li>
+    <li><a href="admin.html" id="adminLink" style="display:none;color:var(--secondary);">⚙ Admin</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="shop.html" class="btn-icon">🛒<span class="badge-dot cart-count">0</span></a>
+    <div id="authBtns" style="display:flex;gap:0.5rem;">
+      <button class="btn-outline" onclick="openAuthModal('login')">Sign In</button>
+      <button class="btn-primary" onclick="openAuthModal('signup')">Sign Up</button>
+    </div>
+    <div class="user-menu" id="userMenu">
+      <div class="user-avatar-btn" id="userMenuTrigger"><div class="user-avatar" id="userAvatar">?</div><span class="user-chevron">▼</span></div>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="dropdown-item">👤 My Profile</div>
+        <div class="dropdown-item dropdown-item-admin" onclick="window.location.href='admin.html'" style="display:none" id="adminDropLink">⚙ Admin Panel</div>
+        <div class="dropdown-sep"></div>
+        <button class="dropdown-item danger" onclick="signOut()">🚪 Sign Out</button>
+      </div>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</div></nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+</div>
+
+<div class="page">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <span class="page-tag">About Us</span>
+      <h1>Kenya's Trusted Tech <span>Destination</span></h1>
+      <p>Founded with a simple mission — make world-class electronics accessible to every Kenyan, at honest prices, delivered fast.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="about-grid reveal">
+        <div>
+          <h2 class="about-h2">Bringing the Best Tech to Kenya</h2>
+          <p class="about-p">Zuricart is your No.1 Online shopping destination — stocking phones, TVs, laptops, audio systems, gaming gear, and home appliances from top global brands like Samsung, Apple, Sony, LG, Hisense, HP, Lenovo, Tecno, Infinix, and many more.</p>
+          <p class="about-p">We believe great technology shouldn't be complicated or out of reach. That's why we've built a platform where you can shop with confidence — genuine products, transparent pricing, and expert support every step of the way.</p>
+          <a href="shop.html" class="btn-primary" style="margin-top:1.5rem;">Browse Products →</a>
+        </div>
+        <div class="about-stats">
+          <div class="about-stat"><div class="about-stat-num">500+</div><div class="about-stat-label">Products</div></div>
+          <div class="about-stat"><div class="about-stat-num">50+</div><div class="about-stat-label">Brands</div></div>
+          <div class="about-stat"><div class="about-stat-num">10K+</div><div class="about-stat-label">Customers</div></div>
+          <div class="about-stat"><div class="about-stat-num">47</div><div class="about-stat-label">Counties</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--surface-2);border-top:1.5px solid var(--border);border-bottom:1.5px solid var(--border);">
+    <div class="section-inner">
+      <div class="section-top reveal"><h2>Our Values</h2></div>
+      <div class="values-grid reveal">
+        <div class="value-card"><div class="value-icon">🎯</div><h3>Customer First</h3><p>Every decision starts with the customer in mind.</p></div>
+        <div class="value-card"><div class="value-icon">✅</div><h3>100% Genuine</h3><p>Every product ships with manufacturer warranty and receipt.</p></div>
+        <div class="value-card"><div class="value-icon">💡</div><h3>Transparent Pricing</h3><p>No hidden fees. The price you see is what you pay.</p></div>
+        <div class="value-card"><div class="value-icon">🚀</div><h3>Fast Delivery</h3><p>Order by midnight, delivered the next day across Kenya.</p></div>
+        <div class="value-card"><div class="value-icon">↩️</div><h3>Easy Returns</h3><p>7-day hassle-free returns. We stand behind everything we sell.</p></div>
+        <div class="value-card"><div class="value-icon">🤝</div><h3>Expert Guidance</h3><p>Our team helps you pick the right product for your budget.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-top reveal"><h2>Payment & Delivery</h2></div>
+      <div class="pd-grid reveal">
+        <div class="pd-card">
+          <h3>💳 Flexible Payments</h3>
+          <ul class="pd-list">
+            <li>✅ M-Pesa (Till & Paybill)</li>
+            <li>✅ Visa & Mastercard</li>
+            <li>✅ Pay On Delivery</li>
+            <li>✅ Bank Transfer</li>
+          </ul>
+        </div>
+        <div class="pd-card">
+          <h3>🚀 Fast Delivery</h3>
+          <ul class="pd-list">
+            <li>🚀 Next-day in Nairobi</li>
+            <li>📦 1–3 days upcountry</li>
+            <li>🏪 In-store pickup available</li>
+            <li>🔄 7-day return policy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer><div class="footer-inner">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="footer-logo">Zuri<span>cart</span></div><p>Kenya's #1 online electronics store.</p>
+      <div class="footer-socials">
+        <a href="https://web.facebook.com/Zuricart/" target="_blank" class="footer-social">f</a>
+        <a href="https://www.instagram.com/zuricart_ke/" target="_blank" class="footer-social">in</a>
+        <a href="https://x.com/zuricartke" target="_blank" class="footer-social">X</a>
+        <a href="https://www.youtube.com/channel/UCvewMvj63uzkEPBPTcg58dQ" target="_blank" class="footer-social">▶</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Shop</h5><a href="shop.html?cat=phones">Phones</a><a href="shop.html?cat=laptops">Laptops</a><a href="shop.html?cat=tvs">TVs</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="about.html">About</a><a href="contact.html">Contact</a><a href="#">Returns</a></div>
+    <div class="footer-col"><h5>Contact</h5><a href="tel:+254700000000">+254 700 000 000</a><a href="mailto:info@zuricart.co.ke">info@zuricart.co.ke</a></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Zuricart Kenya. All rights reserved.</p></div>
+  <script src="../js/theme.js"></script>
+<script src="../js/main.js"></script><script src="../js/auth.js"></script><script src="../js/auth-modal.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => injectAuthModal());</script>
+</body></html>

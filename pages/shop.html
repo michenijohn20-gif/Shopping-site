@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop — Zuricart Kenya</title>
+  <link rel="stylesheet" href="../css/theme.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/auth.css"/>
+  <link rel="stylesheet" href="../css/shop.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Clickable product card overlay */
+    .product-card { position: relative; }
+    .product-card-link {
+      position: absolute; inset: 0; z-index: 1; border-radius: var(--radius-lg);
+    }
+    /* Buttons inside the card float above the link */
+    .product-wishlist,
+    .add-cart-btn { position: relative; z-index: 2; }
+
+    /* Search highlight */
+    mark.search-hl {
+      background: var(--primary-light); color: var(--primary);
+      border-radius: 2px; padding: 0 1px;
+    }
+
+    /* Active filter chips */
+    .filter-chips {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem;
+    }
+    .filter-chip {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: var(--primary-light); border: 1px solid rgba(249,115,22,0.3);
+      color: var(--primary); border-radius: var(--radius-full);
+      font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.7rem;
+    }
+    .filter-chip button {
+      background: none; border: none; color: var(--primary);
+      cursor: pointer; font-size: 0.9rem; padding: 0; line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><div class="nav-logo-z">Z</div>Zuri<span>cart</span></a>
+    <div class="nav-search">
+      <input type="text" id="navSearchInput" placeholder="Search products…"/>
+      <button class="nav-search-btn" id="navSearchBtn">🔍</button>
+    </div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="shop.html" class="active">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="admin.html" id="adminLink" style="display:none;color:var(--secondary);">⚙ Admin</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn-icon" id="cartBtn" title="Cart">🛒<span class="badge-dot cart-count">0</span></button>
+      <div id="authBtns" style="display:flex;gap:0.5rem;">
+        <button class="btn-outline" onclick="openAuthModal('login')">Sign In</button>
+        <button class="btn-primary" onclick="openAuthModal('signup')">Sign Up</button>
+      </div>
+      <div class="user-menu" id="userMenu">
+        <div class="user-avatar-btn" id="userMenuTrigger">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span class="user-chevron">▼</span>
+        </div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-item">👤 My Profile</div>
+          <div class="dropdown-item">📦 My Orders</div>
+          <div class="dropdown-item" onclick="window.location.href='admin.html'" style="display:none" id="adminDropLink">⚙ Admin Panel</div>
+          <div class="dropdown-sep"></div>
+          <button class="dropdown-item danger" onclick="signOut()">🚪 Sign Out</button>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="../index.html">Home</a>
+  <a href="shop.html">Shop</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<!-- CART DRAWER -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-header">
+    <h3>🛒 Your Cart</h3>
+    <button class="modal-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items-list" id="cartItemsList"></div>
+  <div class="cart-drawer-footer" id="cartFooter" style="display:none">
+    <div class="cart-summary">
+      <div class="cart-row"><span>Subtotal</span><span id="cartSubtotal">KES 0</span></div>
+      <div class="cart-row bold"><span>Total</span><span id="cartTotal">KES 0</span></div>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;padding:0.85rem;font-size:1rem;" onclick="showToast('Checkout coming soon!','success')">Proceed to Checkout →</button>
+    <p style="text-align:center;font-size:0.75rem;color:var(--text-3);margin-top:0.5rem;">M-Pesa · Card · Pay on delivery</p>
+  </div>
+</div>
+
+<div class="cat-bar">
+  <div class="cat-bar-inner" id="catBarLinks"></div>
+</div>
+
+<div class="page" style="padding-top:calc(var(--nav-h) + 42px)">
+  <div class="shop-layout section">
+    <div class="section-inner shop-inner">
+
+      <!-- SIDEBAR -->
+      <aside class="shop-sidebar">
+        <div class="sidebar-section">
+          <h4>Categories</h4>
+          <div id="catList"></div>
+        </div>
+        <div class="sidebar-section">
+          <h4>Sort By</h4>
+          <select id="sortSelect" class="sort-sel">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+            <option value="rating">Top Rated</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+        <div class="sidebar-section">
+          <h4>Price Range (KES)</h4>
+          <div style="display:flex;gap:0.5rem;">
+            <input type="number" id="priceMin" placeholder="Min" class="price-inp" />
+            <input type="number" id="priceMax" placeholder="Max" class="price-inp" />
+          </div>
+          <button class="btn-outline" style="width:100%;margin-top:0.6rem;padding:0.5rem;font-size:0.8rem;" onclick="applyFilter()">Apply Filter</button>
+          <button style="width:100%;margin-top:0.4rem;padding:0.45rem;font-size:0.75rem;font-weight:700;color:var(--text-3);background:none;border:none;cursor:pointer;" onclick="clearFilters()">Clear all filters</button>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <div>
+        <div class="shop-topbar">
+          <div class="shop-search-wrap">
+            <span>🔍</span>
+            <input type="text" id="shopSearch" placeholder="Search products, brands…"/>
+            <button id="shopSearchClear" onclick="clearSearch()" style="display:none;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:1rem;padding:0 0.5rem;" title="Clear">✕</button>
+          </div>
+          <span class="result-count">Showing <strong id="productCount">0</strong> products</span>
+        </div>
+
+        <!-- Active filter chips -->
+        <div class="filter-chips" id="filterChips"></div>
+
+        <div class="products-grid" id="productsGrid"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">Zuri<span>cart</span></div>
+        <p>Kenya's #1 online electronics store.</p>
+      </div>
+      <div class="footer-col"><h5>Shop</h5>
+        <a href="shop.html?cat=phones">Phones</a><a href="shop.html?cat=laptops">Laptops</a>
+        <a href="shop.html?cat=tvs">TVs</a><a href="shop.html?cat=audio">Audio</a>
+      </div>
+      <div class="footer-col"><h5>Help</h5>
+        <a href="about.html">About</a><a href="contact.html">Contact</a><a href="#">Returns</a>
+      </div>
+      <div class="footer-col"><h5>Contact</h5>
+        <a href="tel:+254700000000">+254 700 000 000</a>
+        <a href="mailto:info@zuricart.co.ke">info@zuricart.co.ke</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 Zuricart Kenya.</p></div>
+  </div>
+</footer>
+
+<script src="../js/theme.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/auth-modal.js"></script>
+<script>
+let activeCat = 'all', sortBy = 'default', searchQ = '', priceMin = 0, priceMax = Infinity;
+
+document.addEventListener('DOMContentLoaded', () => {
+  injectAuthModal();
+
+  // Category bar
+  document.getElementById('catBarLinks').innerHTML = CATEGORIES.map(c =>
+    `<a href="?cat=${c.id}" class="cat-bar-link ${activeCat===c.id?'active':''}" data-cat="${c.id}" onclick="setCat('${c.id}');return false;">${c.emoji} ${c.label}</a>`
+  ).join('');
+
+  // Sidebar cats
+  document.getElementById('catList').innerHTML = CATEGORIES.map(c =>
+    `<div class="sidebar-cat ${activeCat===c.id?'active':''}" data-cat="${c.id}" onclick="setCat('${c.id}')">${c.emoji} ${c.label}</div>`
+  ).join('');
+
+  // URL params
+  const p = new URLSearchParams(location.search);
+  if (p.get('cat')) setCat(p.get('cat'), false);
+  if (p.get('q')) { searchQ = p.get('q'); document.getElementById('shopSearch').value = searchQ; }
+
+  renderProducts();
+
+  // ── IMPROVED SHOP SEARCH with debounce ──
+  const shopSearchEl = document.getElementById('shopSearch');
+  const clearBtn = document.getElementById('shopSearchClear');
+  let searchTimer;
+  shopSearchEl.addEventListener('input', e => {
+    searchQ = e.target.value;
+    clearBtn.style.display = searchQ ? 'block' : 'none';
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderProducts, 200);
+  });
+
+  document.getElementById('sortSelect').addEventListener('change', e => { sortBy = e.target.value; renderProducts(); });
+
+  // Cart
+  document.getElementById('cartBtn').addEventListener('click', openCart);
+  document.getElementById('cartOverlay').addEventListener('click', closeCart);
+});
+
+function setCat(id, render=true) {
+  activeCat = id;
+  document.querySelectorAll('.cat-bar-link').forEach(a => a.classList.toggle('active', a.dataset.cat === id));
+  document.querySelectorAll('.sidebar-cat').forEach(d => d.classList.toggle('active', d.dataset.cat === id));
+  if (render) { renderProducts(); updateFilterChips(); }
+}
+
+function clearSearch() {
+  searchQ = '';
+  document.getElementById('shopSearch').value = '';
+  document.getElementById('shopSearchClear').style.display = 'none';
+  renderProducts();
+}
+
+function clearFilters() {
+  activeCat = 'all';
+  searchQ = '';
+  priceMin = 0;
+  priceMax = Infinity;
+  sortBy = 'default';
+  document.getElementById('shopSearch').value = '';
+  document.getElementById('shopSearchClear').style.display = 'none';
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
+  document.getElementById('sortSelect').value = 'default';
+  document.querySelectorAll('.cat-bar-link').forEach(a => a.classList.toggle('active', a.dataset.cat === 'all'));
+  document.querySelectorAll('.sidebar-cat').forEach(d => d.classList.toggle('active', d.dataset.cat === 'all'));
+  renderProducts();
+  updateFilterChips();
+}
+
+function applyFilter() {
+  priceMin = parseInt(document.getElementById('priceMin').value) || 0;
+  priceMax = parseInt(document.getElementById('priceMax').value) || Infinity;
+  sortBy = document.getElementById('sortSelect').value;
+  renderProducts();
+  updateFilterChips();
+}
+
+function updateFilterChips() {
+  const chips = [];
+  if (activeCat !== 'all') {
+    const cat = CATEGORIES.find(c => c.id === activeCat);
+    chips.push(`<div class="filter-chip">${cat?.emoji} ${cat?.label}<button onclick="setCat('all')">✕</button></div>`);
+  }
+  if (priceMin > 0 || priceMax < Infinity) {
+    const label = priceMin > 0 && priceMax < Infinity
+      ? `KES ${priceMin.toLocaleString()} – ${priceMax.toLocaleString()}`
+      : priceMin > 0 ? `From KES ${priceMin.toLocaleString()}` : `Up to KES ${priceMax.toLocaleString()}`;
+    chips.push(`<div class="filter-chip">💰 ${label}<button onclick="clearPriceFilter()">✕</button></div>`);
+  }
+  document.getElementById('filterChips').innerHTML = chips.join('');
+}
+
+function clearPriceFilter() {
+  priceMin = 0; priceMax = Infinity;
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
+  renderProducts(); updateFilterChips();
+}
+
+// ── SEARCH: highlights matched text ──
+function highlightText(text, q) {
+  if (!q) return text;
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if (idx === -1) return text;
+  return text.slice(0, idx) +
+    `<mark class="search-hl">${text.slice(idx, idx + q.length)}</mark>` +
+    text.slice(idx + q.length);
+}
+
+function getFiltered() {
+  let list = PRODUCTS;
+  if (activeCat !== 'all') list = list.filter(p => p.cat === activeCat);
+  if (searchQ) {
+    const q = searchQ.toLowerCase().trim();
+    // Score-based search: name matches rank higher than desc matches
+    list = list
+      .map(p => {
+        const nameMatch = p.name.toLowerCase().includes(q);
+        const brandMatch = p.brand.toLowerCase().includes(q);
+        const catMatch = p.cat.toLowerCase().includes(q);
+        const descMatch = p.desc.toLowerCase().includes(q);
+        const score = (nameMatch ? 3 : 0) + (brandMatch ? 2 : 0) + (catMatch ? 1 : 0) + (descMatch ? 1 : 0);
+        return { ...p, _score: score };
+      })
+      .filter(p => p._score > 0)
+      .sort((a, b) => b._score - a._score);
+  }
+  list = list.filter(p => p.price >= priceMin && p.price <= priceMax);
+  if (sortBy === 'price-asc') list.sort((a,b) => a.price - b.price);
+  else if (sortBy === 'price-desc') list.sort((a,b) => b.price - a.price);
+  else if (sortBy === 'rating') list.sort((a,b) => b.rating - a.rating);
+  else if (sortBy === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+  return list;
+}
+
+function renderProducts() {
+  const list = getFiltered();
+  document.getElementById('productCount').textContent = list.length;
+
+  if (!list.length) {
+    document.getElementById('productsGrid').innerHTML = `
+      <div class="empty-state">
+        <div>🔍</div>
+        <p>No products found</p>
+        <small>${searchQ ? `No results for "${searchQ}"` : 'Try a different category or filter'}</small>
+        ${searchQ ? `<button onclick="clearSearch()" class="btn-outline" style="margin-top:1rem;padding:0.5rem 1.2rem;font-size:0.85rem;">Clear search</button>` : ''}
+      </div>`;
+    return;
+  }
+
+  document.getElementById('productsGrid').innerHTML = list.map(p => `
+    <div class="product-card">
+      <a href="product.html?id=${p.id}" class="product-card-link" title="${p.name}"></a>
+      <div class="product-img">
+        <div class="product-img-inner">${p.emoji}</div>
+        <div class="product-badges">${p.badge?`<span class="badge badge-${getBadgeType(p.badge)}">${p.badge}</span>`:''}</div>
+        <button class="product-wishlist ${wishlist.includes(p.id)?'active':''}" onclick="toggleWishlist(${p.id},this)">♥</button>
+      </div>
+      <div class="product-body">
+        <div class="product-brand">${p.brand}</div>
+        <div class="product-name">${highlightText(p.name, searchQ)}</div>
+        <div class="product-desc">${highlightText(p.desc, searchQ)}</div>
+        <div class="product-rating"><span class="stars">${renderStars(p.rating)}</span><span class="rating-count">${p.rating} (${p.reviews})</span></div>
+      </div>
+      <div class="product-footer">
+        <div class="product-price">${formatKES(p.price)}</div>
+        <button class="add-cart-btn" onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.brand}','${p.emoji}')">+ Cart</button>
+      </div>
+    </div>`).join('');
+}
+
+// Cart drawer
+function openCart() {
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('open');
+  renderCartSidebar();
+}
+function closeCart() {
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('open');
+}
+function renderCartSidebar() {
+  const el = document.getElementById('cartItemsList');
+  const footer = document.getElementById('cartFooter');
+  if (!cart.length) {
+    el.innerHTML = `<div class="cart-empty-state"><span>🛒</span><p>Your cart is empty</p><small>Add products to get started</small></div>`;
+    footer.style.display = 'none'; return;
+  }
+  footer.style.display = 'block';
+  const total = cartTotal();
+  document.getElementById('cartSubtotal').textContent = formatKES(total);
+  document.getElementById('cartTotal').textContent = formatKES(total);
+  el.innerHTML = cart.map(item => `
+    <div class="cart-item-row">
+      <div class="cart-item-emoji">${item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${formatKES(item.price)}</div>
+      </div>
+      <div class="cart-qty-ctrl">
+        <button onclick="changeQty(${item.id},-1);renderCartSidebar()">−</button>
+        <span>${item.qty}</span>
+        <button onclick="changeQty(${item.id},1);renderCartSidebar()">+</button>
+      </div>
+      <button class="cart-remove" onclick="removeFromCart(${item.id});renderCartSidebar()">✕</button>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>

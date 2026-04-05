@@ -1,0 +1,333 @@
+/* ══════════════════════════════════════════
+   ZURICART — DARK MODE THEME
+   Add <link rel="stylesheet" href="../css/theme.css"> (or css/theme.css
+   for index.html) to every page's <head>, after all other CSS links.
+   ══════════════════════════════════════════ */
+
+/* ── Smooth transition on every element when theme switches ── */
+*, *::before, *::after {
+  transition:
+    background-color 0.25s ease,
+    border-color     0.25s ease,
+    color            0.2s ease,
+    box-shadow       0.25s ease;
+}
+/* Don't animate transforms (breaks hover effects) */
+.product-card, .cat-tile, .why-card, .value-card, .about-stat,
+.hero-float-card, .btn-primary, .btn-outline, .add-cart-btn,
+.product-img-inner {
+  transition:
+    background-color 0.25s ease,
+    border-color     0.25s ease,
+    color            0.2s ease,
+    box-shadow       0.25s ease,
+    transform        0.25s ease,
+    opacity          0.25s ease;
+}
+
+/* ══════════════════════════════════════════
+   DARK THEME — applied to [data-theme="dark"]
+   on the <html> element
+   ══════════════════════════════════════════ */
+[data-theme="dark"] {
+
+  /* Core palette */
+  --bg:         #0f172a;
+  --bg-white:   #1e293b;
+  --surface:    #1e293b;
+  --surface-2:  #243047;
+
+  /* Text */
+  --text:       #f1f5f9;
+  --text-2:     #94a3b8;
+  --text-3:     #64748b;
+
+  /* Borders */
+  --border:     #2d3f5a;
+
+  /* Primary stays orange — it pops on dark */
+  --primary-light: rgba(249,115,22,0.15);
+
+  /* Cards & elevation */
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.4);
+  --shadow:      0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg:   0 12px 40px rgba(0,0,0,0.5);
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.35);
+  --shadow-orange: 0 8px 24px rgba(249,115,22,0.35);
+
+  /* Alias overrides */
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+  --text-primary:   #f1f5f9;
+  --bg-primary:     #0f172a;
+  --bg-secondary:   #1e293b;
+  --bg-card:        #1e293b;
+  --bg-card-hover:  #243047;
+  --secondary-light: rgba(14,165,233,0.15);
+}
+
+/* ── Body & global ── */
+[data-theme="dark"] body       { background: var(--bg); color: var(--text); }
+[data-theme="dark"] body.admin-page { background: #0a1628; }
+
+/* ── Navbar ── */
+[data-theme="dark"] .navbar {
+  background: #1e293b;
+  border-bottom-color: var(--border);
+}
+[data-theme="dark"] .nav-search {
+  background: #243047;
+  border-color: var(--border);
+}
+[data-theme="dark"] .nav-search input { color: var(--text); }
+[data-theme="dark"] .mobile-menu {
+  background: #1e293b;
+  border-bottom-color: var(--border);
+}
+
+/* ── Category bar ── */
+[data-theme="dark"] .cat-bar { background: #1e293b; border-color: var(--border); }
+[data-theme="dark"] .cat-bar-link { color: var(--text-2); }
+[data-theme="dark"] .cat-bar-link:hover,
+[data-theme="dark"] .cat-bar-link.active { background: var(--primary-light); color: var(--primary); }
+
+/* ── Buttons ── */
+[data-theme="dark"] .btn-icon {
+  background: #243047;
+  border-color: var(--border);
+  color: var(--text-2);
+}
+[data-theme="dark"] .btn-outline {
+  background: transparent;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+[data-theme="dark"] .btn-outline:hover { background: var(--primary); color: white; }
+
+/* ── Product cards ── */
+[data-theme="dark"] .product-card {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+[data-theme="dark"] .product-card:hover { border-color: var(--primary); }
+[data-theme="dark"] .product-img { background: #243047; }
+[data-theme="dark"] .product-wishlist {
+  background: #1e293b;
+  border-color: var(--border);
+  color: var(--text-3);
+}
+
+/* ── Hero ── */
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(135deg, #080e1c 0%, #0f172a 50%, #080e1c 100%);
+}
+[data-theme="dark"] .hero-float-card {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* ── Trust bar stays orange — looks great on dark ── */
+
+/* ── Sections & cards ── */
+[data-theme="dark"] .section { background: var(--bg); }
+[data-theme="dark"] .cat-tile,
+[data-theme="dark"] .why-card,
+[data-theme="dark"] .value-card,
+[data-theme="dark"] .about-stat,
+[data-theme="dark"] .pd-card,
+[data-theme="dark"] .contact-form-card,
+[data-theme="dark"] .contact-info-card,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .admin-card {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+[data-theme="dark"] .deals-section,
+[data-theme="dark"] .why-section { background: #0a1628; border-color: var(--border); }
+
+/* ── Form inputs ── */
+[data-theme="dark"] .field input,
+[data-theme="dark"] .field select,
+[data-theme="dark"] .field textarea,
+[data-theme="dark"] .admin-search,
+[data-theme="dark"] .admin-sel,
+[data-theme="dark"] .sort-sel,
+[data-theme="dark"] .price-inp {
+  background: #243047;
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .field input::placeholder,
+[data-theme="dark"] .field textarea::placeholder { color: var(--text-3); }
+
+/* ── Modal ── */
+[data-theme="dark"] .modal {
+  background: #1e293b;
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] .auth-tabs { background: #243047; }
+[data-theme="dark"] .auth-tab { color: var(--text-3); }
+[data-theme="dark"] .auth-tab.active { background: #1e293b; color: var(--primary); }
+[data-theme="dark"] .btn-google {
+  background: #243047;
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .btn-google:hover { border-color: var(--primary); background: #2d3f5a; }
+
+/* ── User dropdown ── */
+[data-theme="dark"] .user-avatar-btn {
+  background: #243047;
+  border-color: var(--border);
+}
+[data-theme="dark"] .user-dropdown {
+  background: #1e293b;
+  border-color: var(--border);
+}
+[data-theme="dark"] .dropdown-item:hover { background: #243047; }
+
+/* ── Cart drawer ── */
+[data-theme="dark"] .cart-drawer {
+  background: #1e293b;
+  border-left-color: var(--border);
+}
+[data-theme="dark"] .cart-item-row {
+  background: #243047;
+  border-color: var(--border);
+}
+[data-theme="dark"] .cart-qty-ctrl button {
+  background: #1e293b;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* ── Shop sidebar ── */
+[data-theme="dark"] .shop-sidebar {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+[data-theme="dark"] .sidebar-cat:hover { background: #243047; }
+[data-theme="dark"] .sidebar-cat.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: rgba(249,115,22,0.3);
+}
+[data-theme="dark"] .shop-search-wrap {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+[data-theme="dark"] .shop-search-wrap input { color: var(--text); }
+
+/* ── Page hero (about/contact/shop) ── */
+[data-theme="dark"] .page-hero {
+  background: linear-gradient(135deg, #050d1a 0%, #0a1628 60%, #050d1a 100%);
+}
+
+/* ── Admin panel ── */
+[data-theme="dark"] .admin-topbar {
+  background: #1e293b;
+  border-bottom-color: var(--border);
+}
+[data-theme="dark"] .admin-sidebar {
+  background: #1e293b;
+  border-right-color: var(--border);
+}
+[data-theme="dark"] .admin-nav-item { color: var(--text-2); }
+[data-theme="dark"] .admin-nav-item:hover { background: var(--primary-light); color: var(--primary); }
+[data-theme="dark"] .admin-nav-item.active { background: var(--primary); color: white; }
+[data-theme="dark"] .admin-table th { background: #243047; color: var(--text-3); border-color: var(--border); }
+[data-theme="dark"] .admin-table td { border-color: var(--border); }
+[data-theme="dark"] .admin-table tr:hover td { background: #243047; }
+[data-theme="dark"] .stat-card { background: var(--bg-card); border-color: var(--border); }
+
+/* ── Footer stays dark always — already dark ── */
+[data-theme="dark"] footer { background: #050d1a; }
+
+/* ── Newsletter ── */
+[data-theme="dark"] .newsletter-form input {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  color: white;
+}
+
+/* ── Brand chips ── */
+[data-theme="dark"] .brand-chip {
+  background: #1e293b;
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+/* ── FAQ ── */
+[data-theme="dark"] .faq-item { background: var(--bg-card); border-color: var(--border); }
+
+/* ── PD list items (about payment/delivery) ── */
+[data-theme="dark"] .pd-list li {
+  background: #243047;
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+/* ── Search suggestions dropdown ── */
+[data-theme="dark"] #navSuggestBox {
+  background: #1e293b;
+  border-color: var(--border);
+}
+
+/* ── Filter chips ── */
+[data-theme="dark"] .filter-chip {
+  background: var(--primary-light);
+}
+
+/* ── Quick link items ── */
+[data-theme="dark"] .quick-link-item {
+  background: #243047;
+  border-color: var(--border);
+}
+
+/* ══════════════════════════════════════════
+   THEME TOGGLE BUTTON
+   ══════════════════════════════════════════ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  transform: rotate(20deg);
+}
+
+/* Pill-style toggle (alternative, used in mobile menu) */
+.theme-toggle-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+.theme-toggle-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}

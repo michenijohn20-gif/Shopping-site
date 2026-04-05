@@ -1,0 +1,160 @@
+/* ── AUTH CSS ── */
+
+/* USER MENU */
+.user-menu {
+  position: relative;
+  display: none;
+}
+
+.user-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  transition: all 0.2s;
+}
+
+.user-avatar-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-chevron {
+  font-size: 0.55rem;
+  color: var(--text-3);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: all 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.user-dropdown.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.dropdown-item.danger {
+  color: var(--danger);
+}
+
+.dropdown-item.danger:hover {
+  background: #fff5f5;
+}
+
+.dropdown-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 0.25rem 0;
+}
+
+/* AUTH MODAL SPECIFIC */
+.auth-tabs {
+  display: flex;
+  gap: 0.4rem;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 0.3rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-tab.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-panel {
+  display: none;
+}
+
+.auth-panel.active {
+  display: block;
+}
+
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--text);
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-google:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+  background: var(--surface-2);
+}
