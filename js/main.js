@@ -10,7 +10,7 @@ try {
 }
 
 function updateCartCount() {
-  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const total = cart.reduce((s, i) => s + i.qty, 0);CART
   document.querySelectorAll('.cart-count').forEach(el => el.textContent = total);
 }
 

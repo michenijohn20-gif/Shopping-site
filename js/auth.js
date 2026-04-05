@@ -1,7 +1,8 @@
 // ── SUPABASE CONFIG ──
-const SUPABASE_URL = 'https://sihbliunkyutphzrojic.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpaGJsaXVua3l1dHBoenJvamljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MDU2MDAsImV4cCI6MjA5MDM4MTYwMH0.CEAJo6zrds5ODOe2mL7GChnKAHvLwviHL8U8MyzzGD8';
-
+// ── SUPABASE CONFIG ──
+// This version works both locally and on Vercel
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://sihbliunkyutphzrojic.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpaGJsaXVua3l1dHBoenJvamljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MDU2MDAsImV4cCI6MjA5MDM4MTYwMH0.CEAJo6zrds5ODOe2mL7GChnKAHvLwviHL8U8MyzzGD8';
 let supabase;
 
 function initSupabase() {
